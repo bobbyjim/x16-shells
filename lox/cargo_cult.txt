@@ -1,0 +1,85 @@
+Cargo Cult
+==========
+* dynamic types
+  - booleans
+  - floats (with int accommodations)
+  - strings
+  - nil
+  
+* GC
+
+* Arithmetic
+  - +-*/%
+  - -negateMe
+
+* Comparison < <= == => > !=
+
+* Logical Ops  ! and or
+
+* Blocks
+    begin, end
+  
+* Variables
+    my foo = "there can be only one";
+
+* Control Flow
+   if () do ok else do ok
+   for (;;) do ok
+
+* Functions
+   def fn makeBreakfast(bacon, eggs, toast)
+   do
+      print bacon + eggs + toast;
+   ok
+
+
+
+fn buildZones totalSectors, startTrack, @zones
+   for |my index| 0..@zones.length  
+      my track = 1 + GLOBAL.totalTracks + startTrack;
+      my sectorCount = @zones[index][1];
+      my endTrack = 1 + GLOBAL.totalTracks + @zones[index][0];
+     
+      GLOBAL.totalTracks += @zones[index][0];
+    	
+      for |my jdex| track..endTrack
+         GLOBAL.@trackOffset[ jdex ] = totalSectors * 0x100;
+         GLOBAL.@sectorOffset[ jdex ] = totalSectors;
+         GLOBAL.@sectorsInTrack[ jdex ] = sectorCount;
+        
+         totalSectors += sectorCount;
+      endfor
+   endfor
+   return totalSectors;
+endfn
+
+
+z = 0;
+while z < 10
+   writeln 'z = ', z;
+   z = z + 1;
+endwhile
+
+
+
+UCSD p-Machine
+==============
+single-stack-based
+strongly typed for int, float, string, array
+ SP: top-of-stack pointer
+ MP: active stack frame ("mark")
+ EP: highest stack location in current procedure
+
+adi	; add two ints
+adf	; add two floats
+i2f	; int to float
+f2i	; float to int
+dvi	; int division
+ldci	; load integer constant
+mov	; move
+not	; bitwise negation
+
+strongly typed math ops
+integer boolean ops
+compares and branches
+

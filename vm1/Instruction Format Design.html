@@ -1,0 +1,1897 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+    <head>
+        <title>Instruction Format Design</title>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <meta http-equiv="Expires" content="Wed, 31 Jan 2007 23:59:59 GMT" />
+    </head>
+    <body>
+    <p>
+        CIS-77 Home
+        <a href="http://www.c-jump.com/CIS77/CIS77syllabus.htm"><tt>http://www.c-jump.com/CIS77/CIS77syllabus.htm</tt></a>
+    </p>
+    <h3>
+        Instruction Format Design
+    </h3>
+    <hr />
+        <ol>
+            <li><a href="#Y77_0010_instruction_format">Instruction Format Design</a></li>
+            <li><a href="#Y77_0020_encoding_opcodes">Encoding The Opcodes</a></li>
+            <li><a href="#Y77_0030_encoding_opcodes_cont">Encoding The Opcodes, Cont.</a></li>
+            <li><a href="#Y77_0040_small_opcodes">The Goal to Keep Opcodes Small</a></li>
+            <li><a href="#Y77_0050_opcode_length">Variable-length Opcodes</a></li>
+            <li><a href="#Y77_0060_opcode_length_cont">Variable-length Opcodes, Cont.</a></li>
+            <li><a href="#Y77_0070_choosing_opcodes_one">Example: One-byte Opcodes</a></li>
+            <li><a href="#Y77_0080_choosing_opcodes_two">Example: Two-byte Opcodes</a></li>
+            <li><a href="#Y77_0090_choosing_opcodes_three">Example: Three-byte Opcodes</a></li>
+            <li><a href="#Y77_0100_trade_offs">Opcode Length Trade-offs</a></li>
+            <li><a href="#Y77_0110_future_planning">Planning for the future</a></li>
+            <li><a href="#Y77_0120_selecting">Selecting Instruction Set</a></li>
+            <li><a href="#Y77_0130_instruction_groups">Instruction Groups</a></li>
+            <li><a href="#Y77_0140_encoding_instructions">Encoding Instructions</a></li>
+            <li><a href="#Y77_0150_design_trade_offs">Opcode Design Trade-offs</a></li>
+            <li><a href="#Y77_0160_reducing_complexity">Reducing x86 ISA to a Simplified Version</a></li>
+            <li><a href="#Y77_0170_mov_instruction">The MOV Instruction</a></li>
+            <li><a href="#Y77_0180_arithmetic_n_logical">Arithmetic and Logical Instructions</a></li>
+            <li><a href="#Y77_0190_simplified_encoding">Simplified Instruction Encoding (not x86!)</a></li>
+            <li><a href="#Y77_0200_simplified_encoding_cont">Simplified Instruction Encoding, Cont. (not x86!)</a></li>
+            <li><a href="#Y77_0210_simplified_encoding_example">Simplified Instruction Encoding Example (not x86!)</a></li>
+            <li><a href="#Y77_0220_simplified_multibyte">Simplified Multibyte Instructions (not x86!)</a></li>
+            <li><a href="#Y77_0230_simplified_multibyte_cont">Simplified Multibyte Instructions Cont. (not x86!)</a></li>
+            <li><a href="#Y77_0240_simplified_special_opcode">Simplified Special Opcode Instructions (not x86!)</a></li>
+            <li><a href="#Y77_0250_simplified_jump">Simplified Jump Instructions (not x86!)</a></li>
+            <li><a href="#Y77_0260_simplified_conditional_jump">Simplified Conditional Jump Instructions (not x86!)</a></li>
+            <li><a href="#Y77_0270_simplified_illegal">Simplified Instructions Reserved Opcode (not x86!)</a></li>
+            <li><a href="#Y77_0280_simplified_zero_operand">Simplified Zero-Operand Instructions (not x86!)</a></li>
+            <li><a href="#Y77_0290_extending">Extending the Simplified Instruction Set (not x86!)</a></li>
+            <li><a href="#Y77_0300_problem_extending">Problem with Extending the Simplified Instruction Set (not x86!)</a></li>
+            <li><a href="#Y77_0310_prefix_extending">Prefix-Extending the Simplified Instruction Set (not x86!)</a></li>
+            <li><a href="#Y77_0320_prefix_extending_example">Prefix-Extending the Simplified Instruction Set Example (not x86!)</a></li>
+        </ol>
+<a id="Y77_0010_instruction_format"></a>
+
+
+    <h3>
+        1. Instruction Format Design
+    </h3>
+ <hr />
+ <ul>
+  <li>
+   <p>
+    Since opcodes are submitted to the decoder circuits, encoding opcodes is quite more involved rather than just assigning numbers.
+   </p>
+  </li>
+ </ul>
+     <table border="0" cellspacing="0" cellpadding="2">
+         <tr>
+             <td valign="top">
+ <ul>
+  <li>
+   <p>
+    Most important feature of instruction set design -
+   </p>
+   <ul style="list-style-type:none;">
+    <li>
+     <p>
+       make opcodes easy to decode.
+     </p>
+    </li>
+   </ul>
+  </li>
+  <li>
+   <p>
+    The easiest way to do this -
+   </p>
+   <ul style="list-style-type:none;">
+    <li>
+     <p>
+       break up the opcode into several different bit fields.
+     </p>
+    </li>
+   </ul>
+  </li>
+ </ul>
+             </td>
+             <td valign="top">
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     Opcode fields:
+   </p>
+   <p>
+    &nbsp;
+    <img src="http://www.c-jump.com/CIS77/images/simple_opcode.png" alt="opcode byte" />
+   </p>
+  </li>
+ </ul>
+             </td>
+         </tr>
+     </table>
+ <ul>
+  <li>
+   <p>
+    Each field is contributing part of the information necessary to execute the full instruction.
+   </p>
+  </li>
+  <li>
+   <p>
+    The smaller the bit fields, the easier it is for hardware to decode them.
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0020_encoding_opcodes"></a>
+
+
+    <h3>
+        2. Encoding The Opcodes
+    </h3>
+ <hr />
+ <ul>
+  <li>
+   <p>
+    Suppose we decided to design a brand-new CPU with a set of 7-bit opcodes.
+   </p>
+   <ul>
+    <li>
+     <p>
+      With an opcode of this size we could encode <strong>2<sup>7</sup> = 128</strong> different instructions.
+     </p>
+    </li>
+    <li>
+     <p>
+      Decoding individual instructions requires a 7-line to 128-line decoder - an expensive piece of circuitry.
+     </p>
+    </li>
+   </ul>
+  </li>
+  <li>
+   <p>
+    If you have 128 <em>truly unique</em> instructions, there's little you can do other than to decode each instruction individually.
+   </p>
+  </li>
+  <li>
+   <p>
+    However, assuming our instructions contain <em>certain patterns</em>, we could reduce the hardware cost by replacing this large decoder with a few smaller decoders.
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0030_encoding_opcodes_cont"></a>
+
+
+    <h3>
+        3. Encoding The Opcodes, Cont.
+    </h3>
+ <hr />
+ <ul>
+  <li>
+   <p>
+    For example, on the x86 CPUs the opcodes for
+   </p>
+<pre>    mov eax, ebx    ; copy data from <span style="color: blue">EBX</span> register to <span style="color: blue">EAX</span> register
+</pre>
+   <p>
+    and
+   </p>
+<pre>    mov ecx, edx    ; copy data from <span style="color: blue">EDX</span> register to <span style="color: blue">ECX</span> register
+</pre>
+   <p>
+    are different, but both instructions are <em>related</em>: they both move data from one register to another.
+   </p>
+  </li>
+  <li>
+   <p>
+    The only difference between the two <span style="color: blue">MOV</span>s is the <em>source</em> and <em>destination</em> operands.
+   </p>
+  </li>
+  <li>
+   <p>
+    This suggests that we could encode instructions like <span style="color: blue">MOV</span> with a <em>sub-opcode</em> and encode the operands using other bits within the opcode.
+   </p>
+   <p>
+    &nbsp;
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0040_small_opcodes"></a>
+
+
+    <h3>
+        4. The Goal to Keep Opcodes Small
+    </h3>
+ <hr />
+ <ul>
+  <li>
+   <p>
+    Another important criteria: keep instruction sizes within a reasonable range.
+   </p>
+  </li>
+  <li>
+   <p>
+    CPU with unnecessarily long instructions will consume extra memory for programs in memory.
+   </p>
+  </li>
+  <li>
+   <p>
+    Long instructions hurt overall CPU performance.
+   </p>
+  </li>
+  <li>
+   <p>
+    Using encoding with <strong>n</strong>-bit size opcodes leaves us with <strong>2<sup>n</sup></strong> different instructions.
+   </p>
+  </li>
+  <li>
+   <p>
+    With <strong>n</strong> bits, it seems like you can't do it with any fewer but <strong>2<sup>n</sup></strong> opcodes.
+   </p>
+   <p>
+    &nbsp;
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0050_opcode_length"></a>
+
+
+    <h3>
+        5. Variable-length Opcodes
+    </h3>
+ <hr />
+ <ul>
+  <li>
+   <p>
+    We can make some opcodes longer than <strong>n</strong> bits...
+   </p>
+   <ul style="list-style-type:none;">
+    <li>
+     <p>
+       ...and that is the secret to reducing the size of a typical program on the CPU!
+     </p>
+    </li>
+   </ul>
+   <p>
+    (This strategy is acceptable only for CISC processors; RISC<sup>(*)</sup> processors prefer uniform 32-bit or 64-bit instructions.)
+   </p>
+  </li>
+  <li>
+   <p>
+    Assuming that CPU is capable of reading <strong>byte-sized</strong> quantities from memory, each opcode must be some even multiple of 8-bits long.
+   </p>
+  </li>
+  <li>
+   <p>
+    Another point to consider is the space for instruction operands:
+   </p>
+   <ul>
+    <li>
+     <p>
+      RISC designers include all operands in their opcode.
+     </p>
+    </li>
+    <li>
+     <p>
+      CISC designers, including x86, place constants and address displacements (offsets) apart from the opcode.
+     </p>
+    </li>
+   </ul>
+  </li>
+ </ul>
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     ______________
+   </p>
+  </li>
+  <li>
+   <p>
+    <sup>(*)</sup> CISC stands for
+    <noindex><a href="http://en.wikipedia.org/wiki/CISC_processor" target="_blank">complex instruction set computer</a></noindex>
+    design,
+    <br />
+    while RISC is a
+    <noindex><a href="http://en.wikipedia.org/wiki/Reduced_instruction_set_computer" target="_blank">reduced instruction set computer.</a></noindex>
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0060_opcode_length_cont"></a>
+
+
+    <h3>
+        6. Variable-length Opcodes, Cont.
+    </h3>
+ <hr />
+ <ul>
+  <li>
+   <p>
+    Most of processors predating the 8086 had 8-bit opcodes, allowing 256 different instructions.
+   </p>
+  </li>
+  <li>
+   <p>
+    A two-byte opcode would allow 65,536 different instructions...
+   </p>
+   <ul style="list-style-type:none;">
+    <li>
+     <p>
+       ...but from a practical standpoint,
+     </p>
+     <ul>
+      <li>
+       <p>
+        <em>most-frequently-used</em> instructions continue to have 8-bit opcodes,
+       </p>
+      </li>
+      <li>
+       <p>
+        <em>less-frequently-used</em> instructions have two-byte opcodes,
+       </p>
+      </li>
+      <li>
+       <p>
+        three (or more) byte opcodes are mostly for the <em>rarely-used-instructions</em>.
+       </p>
+      </li>
+     </ul>
+    </li>
+   </ul>
+  </li>
+  <li>
+   <p>
+    Such strategy makes a typical program significantly shorter, compared to a uniform two-byte opcode.
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0070_choosing_opcodes_one"></a>
+
+
+    <h3>
+        7. Example: One-byte Opcodes
+    </h3>
+ <hr />
+ <ul>
+  <li>
+   <p>
+    Assume that two <em>high-order</em> bits of an imaginary opcode are<strong> <em>not</em> 00</strong>, and the opcode size is strictly <strong>one</strong> byte long.
+   </p>
+  </li>
+  <li>
+   <p>
+    The 6-bit field marked <strong>xxxxxx</strong> provides <strong>2<sup>6</sup> = 64</strong> unique bit patterns.
+   </p>
+  </li>
+  <li>
+   <p>
+    Together with three non-zero high-order combinations (<strong>01</strong>, <strong>10</strong>, and <strong>11</strong>), 192 different one-byte instructions can be encoded:
+   </p>
+   <ul style="list-style-type:none;">
+    <li>
+     <p>
+       64 &times; 3 = 192
+     </p>
+    </li>
+   </ul>
+  </li>
+ </ul>
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     &nbsp
+    <img src="http://www.c-jump.com/CIS77/images/opcode_size_management_one.png" alt="One-byte Opcodes" />
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0080_choosing_opcodes_two"></a>
+
+
+    <h3>
+        8. Example: Two-byte Opcodes
+    </h3>
+ <hr />
+ <ul>
+  <li>
+   <p>
+    Assume that if three <em>high-order</em> bits of the opcode are equal <strong>001</strong>, it signals that the opcode size is <strong>two</strong> bytes.
+   </p>
+  </li>
+  <li>
+   <p>
+    If so, the remaining 13 bits of the total 16-bit opcode let us encode
+   </p>
+   <ul style="list-style-type:none;">
+    <li>
+     <p>
+       <strong>2<sup>13</sup> = 8192</strong>
+     </p>
+    </li>
+   </ul>
+   <p>
+    different instructions.
+   </p>
+  </li>
+ </ul>
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     &nbsp
+    <img src="http://www.c-jump.com/CIS77/images/opcode_size_management_two.png" alt="Two-byte Opcodes" />
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0090_choosing_opcodes_three"></a>
+
+
+    <h3>
+        9. Example: Three-byte Opcodes
+    </h3>
+ <hr />
+ <ul>
+  <li>
+   <p>
+    If three <em>high-order</em> bits of the opcode are equal <strong>000</strong>, the imaginary opcode is <strong>three</strong> bytes long.
+   </p>
+  </li>
+  <li>
+   <p>
+    If so, the remaining 21 bits of the total 24-bit opcode let us encode two million (<strong>2<sup>21</sup></strong>) different instructions.
+   </p>
+  </li>
+ </ul>
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     &nbsp
+    <img src="http://www.c-jump.com/CIS77/images/opcode_size_management_three.png" alt="Three-byte Opcodes" />
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0100_trade_offs"></a>
+
+
+    <h3>
+        10. Opcode Length Trade-offs
+    </h3>
+ <hr />
+ <ul>
+  <li>
+   <p>
+    Although we are able modify opcode sizes to have smaller programs, it comes at a price:
+   </p>
+   <ul>
+    <li>
+     <p>
+      decoding the instructions is a bit more complicated.
+     </p>
+    </li>
+    <li>
+     <p>
+      Before decoding opcode field, the CPU must first decode the instruction size.
+     </p>
+    </li>
+    <li>
+     <p>
+      This extra step hurts the performance.
+     </p>
+    </li>
+   </ul>
+  </li>
+  <li>
+   <p>
+    These are the reasons, along with some others, why most popular RISC architectures avoid variable-sized instructions.
+   </p>
+  </li>
+  <li>
+   <p>
+    However, x86 uses the <em>variable-length opcodes</em>, since saving memory is such an admirable goal.
+   </p>
+   <p>
+    &nbsp;
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0110_future_planning"></a>
+
+
+    <h3>
+        11. Planning for the future
+    </h3>
+ <hr />
+ <ul>
+  <li>
+   <p>
+    There will be a need for new instructions in the future.
+   </p>
+  </li>
+  <li>
+   <p>
+    Reserving some opcodes specifically for that purpose is a <em>really good idea</em>.
+   </p>
+  </li>
+  <li>
+   <p>
+    For example, reserving a block of 64 <em>one-byte opcodes</em> may seem extravagant, but could also be a rewarding foresight!
+   </p>
+   <p>
+    &nbsp;
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0120_selecting"></a>
+
+
+    <h3>
+        12. Selecting Instruction Set
+    </h3>
+ <hr />
+ <ul>
+  <li>
+   <p>
+    <em>Keep in mind that it's much easier to add an instruction later than to remove it</em>.
+   </p>
+  </li>
+  <li>
+   <p>
+    For starters, it's better to stick with simpler design rather than a more complex one.
+   </p>
+  </li>
+  <li>
+   <p>
+    First step: let's choose some generic instruction types for a brand-new CPU.
+   </p>
+  </li>
+  <li>
+   <p>
+    For example, most processors will have instructions like the following:
+   </p>
+   <ul>
+    <li>
+     <p>
+      Data movement instructions (e.g., <span style="color: blue">MOV</span>)
+     </p>
+    </li>
+    <li>
+     <p>
+      Arithmetic and logical instructions (e.g., <span style="color: blue">ADD</span>, <span style="color: blue">SUB</span>, <span style="color: blue">AND</span>, <span style="color: blue">OR</span>, <span style="color: blue">NOT</span>)
+     </p>
+    </li>
+    <li>
+     <p>
+      Comparison instruction, <span style="color: blue">CMP</span>
+     </p>
+    </li>
+    <li>
+     <p>
+      A set of conditional jump instructions <span style="color: blue">JE</span>, <span style="color: blue">JNE</span>, etc., generally used after the compare instructions.
+     </p>
+    </li>
+    <li>
+     <p>
+      Input/Output instructions <span style="color: blue">GET</span> and <span style="color: blue">PUT</span>.
+     </p>
+    </li>
+   </ul>
+  </li>
+  <li>
+   <p>
+    The bottom line: <em>allow programmers to efficiently write programs using as few instructions as possible</em>.
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0130_instruction_groups"></a>
+
+
+    <h3>
+        13. Instruction Groups
+    </h3>
+ <hr />
+ <ul>
+  <li>
+   <p>
+    Once the initial instruction set is determined, next step is to assign opcodes for them.
+   </p>
+  </li>
+  <li>
+   <p>
+    To do so, instructions are separated into groups with common characteristics:
+   </p>
+   <ul>
+    <li>
+     <p>
+      For example, an <span style="color: blue">ADD</span> instruction supports exact same set of operands as the <span style="color: blue">SUB</span> instruction.
+     </p>
+    </li>
+    <li>
+     <p>
+      <span style="color: blue">NOT</span> instruction requires a single operand, so does the <span style="color: blue">NEG</span> instruction.
+     </p>
+    </li>
+    <li>
+     <p>
+      etc.
+     </p>
+    </li>
+   </ul>
+  </li>
+  <li>
+   <p>
+    Once all the instructions are grouped by their respected categories, the next step is to encode the actual opcodes.
+   </p>
+   <p>
+    &nbsp;
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0140_encoding_instructions"></a>
+
+
+    <h3>
+        14. Encoding Instructions
+    </h3>
+ <hr />
+     <table border="0" cellspacing="0" cellpadding="2">
+         <tr>
+             <td valign="top">
+ <ul>
+  <li>
+   <p>
+    Some bits are needed to identify:
+   </p>
+   <ul>
+    <li>
+     <p>
+      instruction group
+     </p>
+    </li>
+    <li>
+     <p>
+      instruction code
+     </p>
+    </li>
+    <li>
+     <p>
+      operand types: <em>registers, memory locations, constants</em>.
+     </p>
+    </li>
+   </ul>
+  </li>
+  <li>
+   <p>
+    All of the above has a direct impact on the instruction size.
+   </p>
+  </li>
+  <li>
+   <p>
+    For example, 8-bit opcode could be split into
+   </p>
+   <ul>
+    <li>
+     <p>
+      one 3-bit <strong>iii</strong> field to describe instruction and its group, and
+     </p>
+    </li>
+    <li>
+     <p>
+      two fields, <strong>rr</strong> and <strong>mmm</strong>, (5 bits together) to specify where the instruction operands could be found.
+     </p>
+    </li>
+   </ul>
+   <p>
+    &nbsp;
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+             </td>
+             <td valign="top">
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     An opcode byte:
+   </p>
+   <p>
+    &nbsp;
+    <img src="http://www.c-jump.com/CIS77/images/simple_opcode.png" alt="opcode byte" />
+   </p>
+  </li>
+ </ul>
+             </td>
+         </tr>
+     </table>
+
+
+<a id="Y77_0150_design_trade_offs"></a>
+
+
+    <h3>
+        15. Opcode Design Trade-offs
+    </h3>
+ <hr />
+ <ul>
+  <li>
+   <p>
+    Encoding operands is always a problem, because instructions have large number of operand combinations.
+   </p>
+  </li>
+  <li>
+   <p>
+    For example, an x86 <span style="color: blue">MOV</span> instruction requires a two-byte opcode.
+   </p>
+  </li>
+  <li>
+   <p>
+    However, Intel noticed that two instructions
+   </p>
+<pre>    mov memory, eax   ; store register in a variable
+    mov eax, memory   ; load register from a variable
+</pre>
+   <p>
+    occur <em>very</em> frequently. These instructions store <strong>EAX</strong> register into memory and load <strong>EAX</strong> from memory.
+   </p>
+  </li>
+  <li>
+   <p>
+    As a result, x86 provided a special <strong>one</strong>-byte versions of dedicated <span style="color: blue">MOV</span> instructions to reduce program clutter.
+   </p>
+  </li>
+  <li>
+   <p>
+    Note that Intel did not remove the <strong>two</strong>-byte version of these instructions, but compiler or assembler would always emit the shorter of the two instructions.
+   </p>
+  </li>
+  <li>
+   <p>
+    By doing so, Intel has made an important <strong>trade-off</strong> with the <span style="color: blue">MOV</span> instruction encoding:
+   </p>
+   <ul style="list-style-type:none;">
+    <li>
+     <p>
+       <em>giving up extra opcodes</em> in order to provide a shorter version of the <span style="color: blue">MOV</span> sub-family.
+     </p>
+    </li>
+   </ul>
+  </li>
+  <li>
+   <p>
+    Intel used this trick all over the place to make decoding instructions shorter and easier.
+   </p>
+  </li>
+  <li>
+   <p>
+    This decision dates back to 1978. Today's design could use extra bytes, but the cost of memory was high in 1978!
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0160_reducing_complexity"></a>
+
+
+    <h3>
+        16. Reducing x86 ISA to a Simplified Version
+    </h3>
+ <hr />
+ <ul>
+  <li>
+   <p>
+    Advances in computer architecture technology since 1978 made encoding of x86 instructions quite complex and somewhat illogical.
+   </p>
+  </li>
+  <li>
+   <p>
+    Despite the lack of simplicity, x86 ISA well deserves studying its design and encoding.
+   </p>
+  </li>
+  <li>
+   <p>
+    To cope with x86 complexity, let's pretend that we deal with a <strong>simplified version of the CPU</strong>:
+   </p>
+   <ul>
+    <li>
+     <p>
+      there are only four 16-bit registers: <strong>AX</strong>, <strong>BX</strong>, <strong>CX</strong>, and <strong>DX</strong>
+     </p>
+     <ul style="list-style-type:none;">
+      <li>
+       <p>
+         (therefore, register operands can be encoded with just two bits.)
+       </p>
+      </li>
+     </ul>
+    </li>
+    <li>
+     <p>
+      the <strong>address bus</strong> is 16-bit with a maximum of 65,536 bytes of addressable memory.
+     </p>
+    </li>
+    <li>
+     <p>
+      there are only 20 instructions:
+     </p>
+     <ul style="list-style-type:none;">
+      <li>
+       <p>
+         <span style="color: blue">MOV</span> (with two forms), <span style="color: blue">ADD</span>, <span style="color: blue">SUB</span>, <span style="color: blue">CMP</span>, <span style="color: blue">AND</span>, <span style="color: blue">OR</span>, <span style="color: blue">NOT</span>,
+        <br />
+        <span style="color: blue">JE</span>, <span style="color: blue">JNE</span>, <span style="color: blue">JB</span>, <span style="color: blue">JBE</span>, <span style="color: blue">JA</span>, <span style="color: blue">JAE</span>, <span style="color: blue">JMP</span>,
+        <br />
+        <span style="color: blue">BRK</span>, <span style="color: blue">IRET</span>, <span style="color: blue">HALT</span>, <span style="color: blue">GET</span>, and <span style="color: blue">PUT</span>.
+       </p>
+      </li>
+     </ul>
+    </li>
+   </ul>
+   <p>
+    &nbsp;
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0170_mov_instruction"></a>
+
+
+    <h3>
+        17. The MOV Instruction
+    </h3>
+ <hr />
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     The two forms of the simplified <span style="color: blue">MOV</span> instruction could have the following forms:
+   </p>
+<pre>        mov reg, reg/memory/constant    ; load register EAX
+        mov memory, reg                 ; store register in memory
+</pre>
+   <p>
+    where
+   </p>
+   <ul>
+    <li>
+     <p>
+      <strong>mov</strong> is instruction mnemonic
+     </p>
+    </li>
+    <li>
+     <p>
+      <strong>reg</strong> is any of <strong>AX</strong>, <strong>BX</strong>, <strong>CX</strong>, or <strong>DX</strong>,
+     </p>
+    </li>
+    <li>
+     <p>
+      <strong>constant</strong> is a numeric constant (using hexadecimal notation),
+     </p>
+    </li>
+    <li>
+     <p>
+      <strong>memory</strong> is an operand specifying a memory location.
+     </p>
+    </li>
+   </ul>
+   <p>
+    &nbsp;
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0180_arithmetic_n_logical"></a>
+
+
+    <h3>
+        18. Arithmetic and Logical Instructions
+    </h3>
+ <hr />
+     <table border="0" cellspacing="0" cellpadding="2">
+         <tr>
+             <td valign="top">
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     The arithmetic and logical instructions could take the following forms:
+   </p>
+<pre>    add reg, reg/memory/constant
+
+    sub reg, reg/memory/constant
+
+    cmp reg, reg/memory/constant
+
+    and reg, reg/memory/constant
+
+    or  reg, reg/memory/constant
+
+    not reg/memory
+</pre>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+             </td>
+             <td valign="top">
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     1-operand instructions modify its operand.
+   </p>
+  </li>
+  <li>
+   <p>
+    2-operand instructions store the result in the destination operand:
+   </p>
+   <p>
+    &nbsp;
+    <img src="http://www.c-jump.com/CIS77/images/cpuinstructionformats.jpg" alt="Instruction formats" />
+   </p>
+  </li>
+ </ul>
+             </td>
+         </tr>
+     </table>
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0190_simplified_encoding"></a>
+
+
+    <h3>
+        19. Simplified Instruction Encoding (not x86!)
+    </h3>
+ <hr />
+     <table border="0" cellspacing="0" cellpadding="2">
+         <tr>
+             <td valign="top">
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     Three high-order bit field, <strong>iii</strong>, defines the instruction and allows 8 unique bit combinations.
+   </p>
+  </li>
+  <li>
+   <p>
+    (Since we decided to encode 20 different instructions, we cannot encode them with three bits, so we'll have to pull some tricks to handle all of the instructions.)
+   </p>
+  </li>
+ </ul>
+             </td>
+             <td valign="top">
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     Consider one-byte <em>opcode</em> with an optional <em>two-byte</em> constant value:
+   </p>
+   <p>
+    &nbsp;
+    <img src="http://www.c-jump.com/CIS77/images/simple_encoding.png" alt="simplified instruction encoding" />
+   </p>
+  </li>
+ </ul>
+             </td>
+         </tr>
+     </table>
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0200_simplified_encoding_cont"></a>
+
+
+    <h3>
+        20. Simplified Instruction Encoding, Cont. (not x86!)
+    </h3>
+ <hr />
+     <table border="0" cellspacing="0" cellpadding="2">
+         <tr>
+             <td valign="top">
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     There are three <strong>iii</strong> encoding groups:
+   </p>
+   <ol>
+    <li>
+     <p>
+       Special instruction class <strong>iii=000</strong> is reserved for <em>instruction set expansion</em> in the future.
+     </p>
+    </li>
+    <li>
+     <p>
+      Two forms of the <span style="color: blue">MOV</span> instruction include:
+     </p>
+     <ul>
+      <li>
+       <p>
+        <strong>iii=110</strong> specifies <strong>rr</strong> field is the destination,
+       </p>
+      </li>
+      <li>
+       <p>
+        <strong>iii=111</strong> specifies <strong>mmm</strong> field is the destination.
+       </p>
+      </li>
+     </ul>
+    </li>
+    <li>
+     <p>
+      Remaining codes belong to <span style="color: blue">ADD</span>, <span style="color: blue">SUB</span>, <span style="color: blue">CMP</span>, <span style="color: blue">AND</span>, and <span style="color: blue">OR</span> instructions:
+      <img src="http://www.c-jump.com/CIS77/images/simple_encoding.png" alt="simplified instruction encoding" />
+     </p>
+    </li>
+   </ol>
+  </li>
+ </ul>
+             </td>
+             <td valign="top">
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     Another opcode field, <strong>rr</strong>, contains the <em>destination register</em>,
+   </p>
+  </li>
+  <li>
+   <p>
+    ...except for <span style="color: blue">MOV</span> whose <strong>iii = 111</strong>, in which case <strong>rr</strong> specifies the <em>source register</em>.
+   </p>
+  </li>
+  <li>
+   <p>
+    Third bit field, <strong>mmm</strong>, encodes the <em>source operand</em> (again, except <span style="color: blue">MOV</span> whose <strong>iii = 111</strong>.)
+   </p>
+  </li>
+ </ul>
+             </td>
+         </tr>
+     </table>
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0210_simplified_encoding_example"></a>
+
+
+    <h3>
+        21. Simplified Instruction Encoding Example (not x86!)
+    </h3>
+ <hr />
+     <table border="0" cellspacing="0" cellpadding="2">
+         <tr>
+             <td valign="top">
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     For example, encoding of instruction
+   </p>
+<pre>        mov ax, bx
+</pre>
+   <p>
+    consists bit fields
+   </p>
+   <ol>
+    <li>
+     <p>
+       <strong>iii=110</strong> is the encoding for <span style="color: blue">MOV</span> <strong>REG, REG</strong>.
+     </p>
+    </li>
+    <li>
+     <p>
+      <strong>rr=00</strong> specifies that <strong>AX</strong> is the destination operand.
+     </p>
+    </li>
+    <li>
+     <p>
+      <strong>mmm=001</strong> specifies that <strong>BX</strong> is the source operand.
+     </p>
+    </li>
+   </ol>
+  </li>
+ </ul>
+             </td>
+             <td valign="top">
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     Simplified opcode structure:
+   </p>
+   <p>
+    &nbsp;
+    <img src="http://www.c-jump.com/CIS77/images/simple_encoding.png" alt="simplified instruction encoding" />
+   </p>
+  </li>
+ </ul>
+             </td>
+         </tr>
+     </table>
+ 
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     The encoding produces one-byte opcode <span style="background-color: yellow">110 00 001</span>, or <strong>0C1h</strong>.
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0220_simplified_multibyte"></a>
+
+
+    <h3>
+        22. Simplified Multibyte Instructions (not x86!)
+    </h3>
+ <hr />
+ <ul>
+  <li>
+   <p>
+    Instruction
+   </p>
+<pre>        mov ax, [1000h] ; load AX register from memory location 1000h
+</pre>
+   <p>
+    loads the <strong>AX</strong> register from memory location <strong>1000h</strong>.
+   </p>
+  </li>
+  <li>
+   <p>
+    The encoding for the opcode is <span style="background-color: yellow">110 00 110</span>, or <strong>0C6h</strong>.
+   </p>
+  </li>
+  <li>
+   <p>
+    Another encoding,
+   </p>
+<pre>        mov ax, [2000h] ; load AX register from memory location 2000h
+</pre>
+   <p>
+    is exact same <strong>0C6h</strong>, because none of the opcode fields store the memory address.
+   </p>
+  </li>
+  <li>
+   <p>
+    To accommodate 16-bit address or a constant value, we must add two more bytes to the instruction opcode.
+   </p>
+   <p>
+    &nbsp;
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0230_simplified_multibyte_cont"></a>
+
+
+    <h3>
+        23. Simplified Multibyte Instructions Cont. (not x86!)
+    </h3>
+ <hr />
+     <table border="0" cellspacing="0" cellpadding="2">
+         <tr>
+             <td valign="top">
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     To encode immediate constant values and address modes such as
+   </p>
+<pre>  0xxxxh          ; immediate mode
+  [ 0xxxxh ]      ; direct mode
+  [ 0xxxxh + bx ] ; fixed base + reg
+</pre>
+   <p>
+    we add two bytes of <em>16-bit address</em> or <em>constant value</em> to the opcode:
+   </p>
+   <ul>
+    <li>
+     <p>
+      low-order byte immediately follows the opcode byte in memory, and
+     </p>
+    </li>
+    <li>
+     <p>
+      high-order byte comes after that.
+     </p>
+    </li>
+   </ul>
+  </li>
+ </ul>
+             </td>
+             <td valign="top">
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     Simplified multibyte instruction encoding:
+    <img src="http://www.c-jump.com/CIS77/images/simple_encoding.png" alt="Simplified multibyte instruction encoding" />
+   </p>
+  </li>
+  <li>
+   <p>
+    Three-byte encoding for <strong><tt><span style="color: blue">MOV</span> AX, [1000h]</tt></strong> instruction becomes
+   </p>
+<pre>    C6 00 10
+</pre>
+   <p>
+    and the three-byte encoding for <strong><tt><span style="color: blue">MOV</span> AX, [2000h]</tt></strong> is
+   </p>
+<pre>    C6 00 20
+</pre>
+  </li>
+ </ul>
+             </td>
+         </tr>
+     </table>
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0240_simplified_special_opcode"></a>
+
+
+    <h3>
+        24. Simplified Special Opcode Instructions (not x86!)
+    </h3>
+ <hr />
+     <table border="0" cellspacing="0" cellpadding="2">
+         <tr>
+             <td valign="top">
+ <ul>
+  <li>
+   <p>
+    The special opcode<strong> [7:5]=000</strong> allows our imaginary CPU to <em>expand</em> the set of available instructions.
+   </p>
+  </li>
+  <li>
+   <p>
+    This opcode handles several <strong>zero</strong>- and <strong>one</strong>-operand instructions.
+   </p>
+  </li>
+ </ul>
+             </td>
+             <td valign="top">
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     Imaginary Single-Operand Instruction Encoding:
+   </p>
+   <p>
+    &nbsp;
+    <img src="http://www.c-jump.com/CIS77/images/special_opcode.png" alt="Single Operand Instruction Encoding" />
+   </p>
+  </li>
+ </ul>
+             </td>
+         </tr>
+     </table>
+ <ul>
+  <li>
+   <p>
+    There are four possible one-operand instruction classes, specified by 2-bit <strong>ii[4:3] </strong>field:
+   </p>
+   <ol>
+    <li>
+     <p>
+       The first encoding <strong>ii[4:3]=00</strong> further expands the instruction set with a set of <strong>zero</strong>-operand instructions
+     </p>
+    </li>
+    <li>
+     <p>
+      The second opcode <strong>ii[4:3]=01</strong> is also an expansion opcode codifies all of the simplified <strong>jump</strong> instructions.
+     </p>
+    </li>
+    <li>
+     <p>
+      The third opcode <strong>ii[4:3]=10</strong> is the <span style="color: blue">NOT</span> instruction, a <strong>bitwise logical not</strong> operation that inverts all the bits in the destination register or memory operand.
+     </p>
+    </li>
+    <li>
+     <p>
+      The fourth opcode <strong>ii[4:3]=11</strong> is currently unassigned:
+     </p>
+     <ul style="list-style-type:none;">
+      <li>
+       <p>
+         <em>Any attempt to execute unassigned opcode will halt the processor with an illegal instruction error</em>.
+       </p>
+      </li>
+      <li>
+       <p>
+        CPU designers often reserve unassigned opcodes to extend the instruction set at a future date. Intel did so when moving from the 80286 processor to the 80386.
+       </p>
+      </li>
+     </ul>
+    </li>
+   </ol>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0250_simplified_jump"></a>
+
+
+    <h3>
+        25. Simplified Jump Instructions (not x86!)
+    </h3>
+ <hr />
+     <table border="0" cellspacing="0" cellpadding="2">
+         <tr>
+             <td valign="top">
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     There are seven jump instructions in the simplified x86 instruction set. They all take the following form:
+   </p>
+<pre>        jxx address
+</pre>
+  </li>
+  <li>
+   <p>
+    The <span style="color: blue">JMP</span> instruction copies the 16-bit value (address) following the opcode into the <strong>IP</strong> register.
+   </p>
+  </li>
+ </ul>
+             </td>
+             <td valign="top">
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     Imaginary <strong>jump</strong> instruction encodings:
+   </p>
+   <p>
+    &nbsp;
+    <img src="http://www.c-jump.com/CIS77/images/jump_encodings.png" alt="Jump Instruction Encodings" />
+   </p>
+  </li>
+ </ul>
+             </td>
+         </tr>
+     </table>
+ <ul>
+  <li>
+   <p>
+    Therefore, the CPU will fetch the next instruction from this new target address.
+   </p>
+  </li>
+  <li>
+   <p>
+    Effectively, the program <em>jumps</em> from the point of the <span style="color: blue">JMP</span> instruction to the instruction at the target address.
+   </p>
+  </li>
+  <li>
+   <p>
+    The <span style="color: blue">JMP</span> instruction is called an <em>unconditional jump</em> instruction, it always transfers control to the target address.
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0260_simplified_conditional_jump"></a>
+
+
+    <h3>
+        26. Simplified Conditional Jump Instructions (not x86!)
+    </h3>
+ <hr />
+     <table border="0" cellspacing="0" cellpadding="2">
+         <tr>
+             <td valign="top">
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     There are six conditional jump instructions:
+   </p>
+<pre>    JA  - jump <span style="color: blue">if</span> greater than (above)
+    JAE - jump <span style="color: blue">if</span> greater than or equal
+    JB  - jump <span style="color: blue">if</span> less than (below)
+    JBE - jump <span style="color: blue">if</span> less than or equal
+    JE  - jump <span style="color: blue">if</span> equality
+    JNE - jump <span style="color: blue">if</span> inequality
+</pre>
+  </li>
+ </ul>
+             </td>
+             <td valign="top">
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     You would normally execute <span style="color: blue">JE</span> or similar instruction <em>immediately after</em> a <span style="color: blue">CMP</span> instruction, since it
+    sets the <strong>less than</strong> and <strong>equality</strong> flags in the CPU for conditional jump instructions to look at.
+   </p>
+  </li>
+ </ul>
+             </td>
+         </tr>
+     </table>
+ <ul>
+  <li>
+   <p>
+    Conditional jump instruction mechanics are:
+   </p>
+   <ol>
+    <li>
+     <p>
+       <strong>Test</strong> some condition, and then <strong>jump</strong>, but only if the condition was <span style="color: blue">true</span>.
+     </p>
+    </li>
+    <li>
+     <p>
+      <strong>Fall through</strong> to the next instruction if the condition was <span style="color: blue">false</span>.
+     </p>
+    </li>
+   </ol>
+  </li>
+  <li>
+   <p>
+    Conditional jumps test the results of the preceeding <span style="color: blue">CMP</span> instruction. For example,
+   </p>
+<pre>            cmp     bx, 0           ; Is BX = 0?
+            je      is_zero         ; Jump if so
+            ...
+    is_zero:
+</pre>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0270_simplified_illegal"></a>
+
+
+    <h3>
+        27. Simplified Instructions Reserved Opcode (not x86!)
+    </h3>
+ <hr />
+     <table border="0" cellspacing="0" cellpadding="2">
+         <tr>
+             <td valign="top">
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     Note that there are eight possible jump opcodes, but so far we needed only seven of them.
+   </p>
+  </li>
+  <li>
+   <p>
+    The eighth opcode, <strong>mmm=111</strong> should then be another illegal opcode.
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+             </td>
+             <td valign="top">
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     Imaginary <strong>jump</strong> instruction encodings:
+   </p>
+   <p>
+    &nbsp;
+    <img src="http://www.c-jump.com/CIS77/images/jump_encodings.png" alt="Jump Instruction Encodings" />
+   </p>
+  </li>
+ </ul>
+             </td>
+         </tr>
+     </table>
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0280_simplified_zero_operand"></a>
+
+
+    <h3>
+        28. Simplified Zero-Operand Instructions (not x86!)
+    </h3>
+ <hr />
+     <table border="0" cellspacing="0" cellpadding="2">
+         <tr>
+             <td valign="top">
+ <ul>
+  <li>
+   <p>
+    The last group of instructions is the zero operand instructions.
+   </p>
+  </li>
+  <li>
+   <p>
+    Three of these instructions are illegal instruction opcodes.
+   </p>
+  </li>
+  <li>
+   <p>
+    The <span style="color: blue">BRK</span> (break) instruction pauses the CPU until the user manually restarts it.
+   </p>
+   <ul style="list-style-type:none;">
+    <li>
+     <p>
+       This is useful for pausing a program during execution to observe results.
+     </p>
+    </li>
+   </ul>
+  </li>
+  <li>
+   <p>
+    The <span style="color: blue">IRET</span> (interrupt return) instruction returns control from an interrupt service routine.
+   </p>
+   <ul style="list-style-type:none;">
+    <li>
+     <p>
+       (We will discuss interrupt service routines later.)
+     </p>
+    </li>
+   </ul>
+  </li>
+ </ul>
+             </td>
+             <td valign="top">
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     Zero Operand Instruction Encodings:
+   </p>
+   <p>
+    &nbsp;
+    <img src="http://www.c-jump.com/CIS77/images/zero_operand_encodings.png" alt="Zero Operand Instruction Encodings" />
+   </p>
+  </li>
+ </ul>
+             </td>
+         </tr>
+     </table>
+ <ul>
+  <li>
+   <p>
+    The <span style="color: blue">HALT</span> program terminates program execution.
+   </p>
+  </li>
+  <li>
+   <p>
+    The <span style="color: blue">GET</span> instruction reads a hexadecimal value from the keyboard and returns this value in the <strong>AX</strong> register.
+   </p>
+  </li>
+  <li>
+   <p>
+    The <span style="color: blue">PUT</span> instruction prints the value in the <strong>AX</strong> register.
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0290_extending"></a>
+
+
+    <h3>
+        29. Extending the Simplified Instruction Set (not x86!)
+    </h3>
+ <hr />
+     <table border="0" cellspacing="0" cellpadding="2">
+         <tr>
+             <td valign="top">
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     The simplified CPU architecture design does provide the capability for expansion.
+   </p>
+  </li>
+  <li>
+   <p>
+    The ability to accomplish this exists in the instruction set through undefined/reserved/illegal opcodes.
+   </p>
+  </li>
+ </ul>
+             </td>
+             <td valign="top">
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     Imaginary single-operand instruction encoding:
+   </p>
+   <p>
+    &nbsp;
+    <img src="http://www.c-jump.com/CIS77/images/special_opcode.png" alt="single operand instruction encoding" />
+   </p>
+  </li>
+ </ul>
+             </td>
+         </tr>
+     </table>
+ <ul>
+  <li>
+   <p>
+    The first method is to directly use the undefined opcodes to define new instructions
+   </p>
+   <ul style="list-style-type:none;">
+    <li>
+     <p>
+       (this works best when there are undefined bit patterns within an opcode group and new instruction falls into that same group.)
+     </p>
+    </li>
+   </ul>
+  </li>
+  <li>
+   <p>
+    For example, opcode "<strong>000 11 mmm</strong>" falls into the same group as the <span style="color: blue">NOT</span> instruction.
+   </p>
+  </li>
+  <li>
+   <p>
+    If you decided to add <span style="color: blue">NEG</span> (negate, take the two's complement) instruction,
+    <br />
+    using opcode "<strong>000 11 mmm</strong>" makes a lot of sense.
+   </p>
+  </li>
+  <li>
+   <p>
+    <span style="color: blue">NEG</span> instruction uses the same syntax and decoding, as the <span style="color: blue">NOT</span> instruction.
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0300_problem_extending"></a>
+
+
+    <h3>
+        30. Problem with Extending the Simplified Instruction Set (not x86!)
+    </h3>
+ <hr />
+     <table border="0" cellspacing="0" cellpadding="2">
+         <tr>
+             <td valign="top">
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     Unfortunately, the simplified CPU doesn't have that many illegal opcodes available.
+   </p>
+  </li>
+  <li>
+   <p>
+    For example, to add new single-operand instructions
+   </p>
+<pre>    <span style="color: blue">SHL</span> - shift left
+    <span style="color: blue">SHR</span> - shift right
+    <span style="color: blue">ROL</span> - rotate left
+    <span style="color: blue">ROR</span> - rotate right
+</pre>
+  </li>
+ </ul>
+             </td>
+             <td valign="top">
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     Imaginary single-operand instruction encoding:
+   </p>
+   <p>
+    &nbsp;
+    <img src="http://www.c-jump.com/CIS77/images/special_opcode.png" alt="single operand instruction encoding" />
+   </p>
+  </li>
+ </ul>
+             </td>
+         </tr>
+     </table>
+ <ul>
+  <li>
+   <p>
+    There is insufficient space in the single operand instruction opcodes.
+   </p>
+  </li>
+  <li>
+   <p>
+    Currently there is only one open opcode: <strong>000 11 mmm</strong>.
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0310_prefix_extending"></a>
+
+
+    <h3>
+        31. Prefix-Extending the Simplified Instruction Set (not x86!)
+    </h3>
+ <hr />
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     A common way to handle the opcode shortage (one the Intel designers have employed) is to use a <em>prefix opcode byte</em>:
+   </p>
+   <p>
+    &nbsp;
+    <img src="http://www.c-jump.com/CIS77/images/prefix_byte_extend.png" alt="Using a prefix byte to extend the instruction set" />
+   </p>
+  </li>
+  <li>
+   <p>
+    Prefix opcode expansion scheme uses an <strong>opcode prefix byte</strong> as follows:
+   </p>
+   <ul>
+    <li>
+     <p>
+      Decode prefix byte in memory.
+     </p>
+    </li>
+    <li>
+     <p>
+      Read and decode the <strong>next byte</strong> in memory as the <strong>actual opcode</strong>.
+     </p>
+    </li>
+    <li>
+     <p>
+      However, the second opcode byte uses a <em>completely different encoding scheme</em>.
+     </p>
+    </li>
+   </ul>
+  </li>
+  <li>
+   <p>
+    Therefore, prefix lets you specify as many new instructions as you can encode in that byte (or bytes, if you prefer).
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+<a id="Y77_0320_prefix_extending_example"></a>
+
+
+    <h3>
+        32. Prefix-Extending the Simplified Instruction Set Example (not x86!)
+    </h3>
+ <hr />
+ <ul style="list-style-type:none;">
+  <li>
+   <p>
+     Using a prefix byte to extend the instruction set:
+   </p>
+   <p>
+    &nbsp;
+    <img src="http://www.c-jump.com/CIS77/images/prefix_byte_extend.png" alt="Using a prefix byte to extend the instruction set" />
+   </p>
+  </li>
+  <li>
+   <p>
+    For example, the opcode <strong>0FFh</strong> is illegal, since it corresponds to a
+   </p>
+<pre>        mov <span style="color: blue">const</span>, dx ; error: attempt to modify immediate operand
+</pre>
+   <p>
+    instruction. So, we could use <strong>0FFh</strong> as a special prefix byte to further expand the instruction set.
+   </p>
+   <p>
+    &nbsp;
+   </p>
+   <p>
+    &nbsp;
+   </p>
+  </li>
+ </ul>
+
+
+    </body>
+</html>
+
