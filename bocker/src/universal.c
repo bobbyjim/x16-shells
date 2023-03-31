@@ -2,9 +2,9 @@
 #include <string.h>
 #include <conio.h>
 #include <cx16.h>
+#include <stdlib.h>
 
 #include "universal.h"
-
 
 #define     ADDR_VERSION      ((unsigned char*)0xff80)
 #define     REVERSE_ON      0x12
@@ -15,6 +15,87 @@
 #define     CH_REVERSE_ON   18
 #define     CH_REVERSE_OFF  146
 #define     CH_FILL_ANGLE   169
+
+char tmp[20];
+
+char *adjective[] = {
+    "arthritic",
+    "banal",
+    "campy",
+    "deathly",
+    "english",
+    "figgy",
+    "grungy",
+    "hapless",
+    "insolent",
+    "junk",
+    "klepto",
+    "maniacal",
+    "nearsighted",
+    "outre",
+    "painful",
+    "quacking",
+    "slithy",
+    "turfal",
+    "unisex",
+    "verbal",
+    "woeful",
+    "xanthic",
+    "yonder",
+    "zippy"
+};
+
+char *noun[] = {
+    "ankle",
+    "bat",
+    "cryptid",
+    "dunghill",
+    "ent",
+    "fink",
+    "gruel",
+    "harpy",
+    "ink",
+    "job",
+    "kerbal",
+    "lunk",
+    "mud",
+    "nerf",
+    "oaf",
+    "punk",
+    "qagga",
+    "rennet",
+    "sinkhole",
+    "tv",
+    "unguent",
+    "vat",
+    "whip",
+    "xerxes",
+    "yak",
+    "zebra"
+};
+
+char* generateName()
+{
+    sprintf(tmp, "%s_%s", 
+       adjective[ rand() % 25 ],
+       noun[ rand() % 25 ]
+    );
+
+    return tmp;
+}
+
+void wipeScreen()
+{
+   unsigned char version = getVersion();
+   char proto = isProto();
+
+   clrscr();
+   gotoxy(37,2);
+   cprintf("bocker                             r%03d%c",version,proto);
+
+   logo(1,1);
+   gotoxy(0,6);
+}
 
 char isProto()
 {
@@ -42,14 +123,14 @@ void logo(unsigned char x, unsigned char y)
 }
 
 void login(char *name, char *date)
-{  
+{
    unsigned char version = getVersion();
    char proto = isProto();
 
+   bgcolor(COLOR_BLACK);
    clrscr();
    logo(2,8);
-
-   textcolor(5);
+   textcolor(COLOR_ORANGE);
 
    gotoxy(0,2);
    cprintf("  r%03d%c                             %s                               ",version,proto, name);
@@ -62,11 +143,12 @@ void login(char *name, char *date)
    gotoxy(2,18);
    cprintf("                        commander x16 | %s", date);
 
-   //textcolor(10);
-   //cputsxy(2,25,"                    * * *   press a key to login   * * * ");
-   //cgetc();
-   //cclearxy(2,25,70);
-   //textcolor(5);
+   textcolor(COLOR_LIGHTRED);
+   cputsxy(2,25,"                    * * *   press a key to login   * * * ");
+   cgetc();
+   cclearxy(2,25,70);
 
    gotoxy(0,20);
+   textcolor(COLOR_LIGHTBLUE);
 }
+
